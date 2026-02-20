@@ -45,6 +45,31 @@ def stop_event_check(func):
             raise Exception("Operation stopped due to stop_event flag.")
         return func(self, *args, **kwargs)
     return wrapper
+    
+class BaseFacSetting(ExtendedBaseSettings):
+    """Common base for Alpha Agent Loop configuration."""
+
+    scen: str = ""
+    knowledge_base: str = ""
+    knowledge_base_path: str = ""
+    hypothesis_gen: str = ""
+    construction: str = ""
+    calculation: str = ""
+    coder: str = ""
+    runner: str = ""
+    summarizer: str = ""
+    evolving_n: int = 10
+class AlphaAgentFactorBasePropSetting(BasePropSetting):
+    """Main experiment: LLM-driven factor mining."""
+    model_config = ExtendedSettingsConfigDict(env_prefix="QLIB_FACTOR_", protected_namespaces=())
+
+    scen: str = "quantaalpha.factors.experiment.QlibAlphaAgentScenario"
+    hypothesis_gen: str = "quantaalpha.factors.proposal.AlphaAgentHypothesisGen"
+    hypothesis2experiment: str = "quantaalpha.factors.proposal.AlphaAgentHypothesis2FactorExpression"
+    coder: str = "quantaalpha.factors.qlib_coder.QlibFactorParser"
+    runner: str = "quantaalpha.factors.runner.QlibFactorRunner"
+    summarizer: str = "quantaalpha.factors.feedback.AlphaAgentQlibFactorHypothesisExperiment2Feedback"
+    evolving_n: int = 5
 
 
 class AlphaAgentLoop(LoopBase, metaclass=LoopMeta):
@@ -53,7 +78,7 @@ class AlphaAgentLoop(LoopBase, metaclass=LoopMeta):
     @measure_time
     def __init__(
         self, 
-        PROP_SETTING: BaseFacSetting, 
+        PROP_SETTING: BaseFacSetting,  #ALPHA_AGENT_FACTOR_PROP_SETTING = AlphaAgentFactorBasePropSetting()
         potential_direction, 
         stop_event: threading.Event, 
         use_local: bool = True,
